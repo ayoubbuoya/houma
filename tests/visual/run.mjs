@@ -79,7 +79,8 @@ try {
       }
       h.auto(null);
       res.walk = walk;
-      // drive every car: straight, then a hard turn
+      // drive every car: straight, then a hard turn (traffic off so the road is empty)
+      h.trafficEnabled(false);
       res.cars = [];
       for (let i = 0; i < h.cars(); i++) {
         const home = h.car(i);
@@ -103,6 +104,7 @@ try {
         h.placeCar(i, home.x, home.z, home.yaw);
         res.cars.push({ name: a.name, a, b, c, d, moved: Math.hypot(b.x - a.x, b.z - a.z), forward: (b.x - a.x) * Math.sin(a.yaw) + (b.z - a.z) * Math.cos(a.yaw), turned: c.yaw - b.yaw, after: h.player() });
       }
+      h.trafficEnabled(true);
       // medina: walk around inside, stay above ground
       h.teleport(-203.6, -60);
       h.steps(60);
@@ -122,6 +124,32 @@ try {
       check(`car ${c.name} brakes`, c.d.kmh < 15, `${c.d.kmh.toFixed(0)} km/h`);
       check(`player can exit ${c.name}`, fin(c.after) && c.after.y > -0.3 && !c.after.inVehicle, JSON.stringify(c.after));
     }
+    // traffic: count stays in limits, and a crash into an AI car is handled
+    const tr = await page.evaluate(() => {
+      const h = window.__houma;
+      h.teleport(3, -112);
+      h.steps(600);
+      const t0 = h.traffic();
+      const cars = h.trafficCars().filter((c) => c.path === 'lane' && c.toEnd > 40 && c.v > 3);
+      let crash = null;
+      if (cars.length) {
+        const c = cars[0];
+        const g = h.game.traffic.agents.find((a) => a.id === c.id);
+        // put the player's car in front of the AI car, facing it, and floor it
+        h.placeCar(0, g.x + Math.sin(g.yaw) * 30, g.z + Math.cos(g.yaw) * 30, g.yaw + Math.PI);
+        h.enter(0);
+        h.auto({ car: { throttle: 1, steer: 0, handbrake: false } });
+        h.steps(240);
+        h.auto(null);
+        const pc = h.car(0);
+        h.exit();
+        crash = { crashes: h.traffic().crashes - t0.crashes, upY: pc.upY, y: pc.y, ok: Number.isFinite(pc.x + pc.y + pc.z) };
+      }
+      return { t0, crash, lights: [h.light(0, true), h.light(0, false)] };
+    });
+    check('traffic count is within limits', tr.t0.count >= 6 && tr.t0.count <= 25, `${tr.t0.count} cars, ${tr.t0.moving} moving`);
+    check('no AI cars overlap', tr.t0.overlapSteps === 0, `min distance ${tr.t0.minPair.toFixed(1)} m`);
+    check('crash into an AI car is handled', !!tr.crash && tr.crash.crashes >= 1 && tr.crash.ok && tr.crash.upY > 0.5 && tr.crash.y < 3, JSON.stringify(tr.crash));
     const st = await page.evaluate(() => window.__houma.stats());
     check('sidewalk graph is one connected network', st.walk.reachable > st.walk.nodes * 0.9 && st.walk.crossings > 50, JSON.stringify(st.walk));
     check('road graph exists', st.roads.nodes > 40 && st.roads.edges > 60, JSON.stringify(st.roads));

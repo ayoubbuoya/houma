@@ -33,7 +33,7 @@ export interface CityData {
   colliders: BoxCollider[];
   trimeshes: { vertices: Float32Array; indices: Uint32Array }[];
   carSpawns: CarSpawn[];
-  trafficLights: { node: number; x: number; z: number; yaw: number }[];
+  trafficLights: { node: number; x: number; z: number; yaw: number; ns: boolean }[];
   louageBays: { x: number; z: number; yaw: number }[];
   seats: { x: number; z: number; yaw: number }[];
   pois: Record<string, { x: number; z: number }>;
@@ -226,7 +226,7 @@ class CityBuilder {
         b.push(0, 0, 0, CURB);
         trafficLightPole(this.k, x, z, yaw);
         b.pop();
-        this.trafficLights.push({ node: node.id, x, z, yaw });
+        this.trafficLights.push({ node: node.id, x, z, yaw, ns: Math.abs(e.dx) < 0.5 });
         // stop line
         b.push(a.x, a.z, Math.atan2(e.dx, e.dz));
         const lo = e.median / 2, hi = e.hw - 0.3;

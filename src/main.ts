@@ -4,6 +4,8 @@ import '@fontsource/cairo/latin-400.css';
 import '@fontsource/cairo/arabic-400.css';
 import RAPIER_NS from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
+import { TrafficLights } from './ai/traffic/lights';
+import { TrafficSystem } from './ai/traffic/traffic';
 import { GameAudio } from './core/audio';
 import { DEBUG, DEBUG_CAMS } from './core/debug';
 import { Input } from './core/input';
@@ -12,6 +14,7 @@ import { CAMERA, PHYSICS, PLAYER, VEHICLES, WORLD, type Quality } from './data/c
 import { Physics } from './physics/physics';
 import { FollowCamera } from './player/camera';
 import { Player } from './player/player';
+import { Bubbles } from './ui/bubbles';
 import { Hud } from './ui/hud';
 import { Vehicle, type Controls } from './vehicles/vehicle';
 import { Atlas } from './world/atlas';
@@ -36,6 +39,9 @@ class Game {
   audio = new GameAudio();
   paused = false;
   vehicles: Vehicle[] = [];
+  lights!: TrafficLights;
+  traffic!: TrafficSystem;
+  bubbles!: Bubbles;
   current: Vehicle | null = null;
   state: 'title' | 'play' = 'title';
   time = 0;
@@ -83,6 +89,11 @@ class Game {
       const color = s.color ?? spec.colors[i % spec.colors.length];
       this.vehicles.push(new Vehicle(spec, color, atlas, this.physics, this.gfx.scene, s.x, s.z, s.yaw, i));
     });
+    this.bubbles = new Bubbles(this.gfx.camera);
+    this.lights = new TrafficLights(this.city, this.gfx.scene);
+    this.traffic = new TrafficSystem(this.city, this.physics, this.gfx.scene, atlas, this.lights, this.audio, this.bubbles);
+    this.traffic.setQuality(quality);
+    this.traffic.setEnabled(!DEBUG.notraffic);
     // let the cars settle on their suspension
     for (let i = 0; i < 40; i++) this.step(PHYSICS.step);
 
@@ -127,6 +138,7 @@ class Game {
   setQuality(q: Quality): void {
     this.gfx.setQuality(q);
     this.sky.setQuality(q);
+    this.traffic?.setQuality(q);
   }
 
   // ---------------------------------------------------------------- simulation
@@ -146,6 +158,8 @@ class Game {
       this.player.fixedUpdate(dt, this.fakeInput as any, 0);
     } else this.player.fixedUpdate(dt, playing && !this.current ? this.input : null, this.cam.yaw);
     for (const v of this.vehicles) v.fixedUpdate(dt, v === this.current ? this.controls() : null);
+    this.lights.update(dt);
+    this.traffic.fixedUpdate(dt, { playerPos: this.player.pos, playerOnFoot: !this.current, playerVehicle: this.current, vehicles: this.vehicles, camera: this.gfx.camera });
     this.physics.step();
     for (const v of this.vehicles) v.afterStep();
     if (this.current) {
@@ -239,6 +253,7 @@ class Game {
     }
     player.frame(alpha, dt);
     for (const v of this.vehicles) v.frame(alpha);
+    this.traffic.frame(alpha);
 
     const district = districtAt(player.pos.x, player.pos.z);
     if (DEBUG.cam && DEBUG_CAMS[DEBUG.cam]) {
@@ -274,6 +289,7 @@ class Game {
     this.gfx.setFade(Math.max(this.fade, this.fadeTarget));
     this.sky.update(this.focus, this.time);
     this.sea.update(this.time, this.sky);
+    this.bubbles.update(dt);
     this.gfx.renderer.info.reset();
     this.gfx.render();
     hud.update(dt, () => {
@@ -310,6 +326,10 @@ class Game {
       /** Advance the simulation without rendering. */
       steps: (n: number) => { for (let i = 0; i < n; i++) this.step(PHYSICS.step); },
       look: (yaw: number, pitch: number) => { this.cam.yaw = yaw; this.cam.pitch = pitch; this.cam.snap(); },
+      traffic: () => this.traffic.report(),
+      trafficEnabled: (on: boolean) => this.traffic.setEnabled(on),
+      trafficCars: () => this.traffic.agents.map((a) => ({ id: a.id, x: +a.x.toFixed(1), z: +a.z.toFixed(1), v: +a.v.toFixed(1), kind: a.spec.kind, path: a.path.kind, node: a.path.node, turn: a.next?.turn, blocked: +a.blocked.toFixed(0), why: a.why, by: a.blocker?.id ?? 0, toEnd: +(a.path.length - a.s).toFixed(1) })),
+      light: (node: number, ns: boolean) => this.lights.state(node, ns),
       setTime: (h: number) => this.sky.setTime(h),
       setQuality: (q: Quality) => this.setQuality(q),
     };

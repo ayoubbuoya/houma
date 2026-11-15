@@ -29,6 +29,7 @@ npm run build
 | Shift | Run |
 | Space | Jump / handbrake in a car |
 | F | Enter or exit the nearest car |
+| H | Horn |
 | R | Reset the car if it is stuck or flipped |
 | F3 | FPS counter |
 
@@ -40,7 +41,8 @@ See [`PROGRESS.md`](PROGRESS.md) for the build levels. Short version:
 - Golden hour lighting: sky, sun shadows that follow the player, fog, bloom, color grading, animated sea.
 - Third-person player with camera collision.
 - Drivable cars with arcade physics: hatchback, sedan, pickup, taxi, louage.
-- Road graph and sidewalk graph data, ready for traffic and pedestrians.
+- Living traffic: AI cars on lanes, traffic lights, roundabouts, horns, taxis that stop suddenly.
+- Road graph and sidewalk graph data (pedestrians come next).
 
 ## Tests
 
@@ -50,6 +52,7 @@ The game tests itself with headless Chromium screenshots and simple physics chec
 npm run build
 npm run test:visual            # screenshots of every district into tests/visual/out/
 node tests/visual/run.mjs boulevard medina --checks   # chosen cameras + walking/driving checks
+npm run test:traffic           # 5 simulated minutes of traffic at 5 places: no jams, no overlaps
 ```
 
 Debug URL options: `?debug=1&cam=medina&time=17&q=high&seed=2026`.

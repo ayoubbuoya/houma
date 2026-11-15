@@ -47,6 +47,31 @@ export class GameAudio {
     }
   }
 
+  /** Short horn from another car. distance in meters from the listener. */
+  beep(distance: number, pitch = 1): void {
+    if (!this.ctx || !this.master || distance > 90) return;
+    const t = this.ctx.currentTime;
+    const gain = this.ctx.createGain();
+    const vol = 0.16 / (1 + (distance / 14) ** 2);
+    const len = 0.22 + Math.random() * 0.35;
+    gain.gain.setValueAtTime(0, t);
+    gain.gain.linearRampToValueAtTime(vol, t + 0.02);
+    gain.gain.setValueAtTime(vol, t + len);
+    gain.gain.linearRampToValueAtTime(0, t + len + 0.05);
+    const lp = this.ctx.createBiquadFilter();
+    lp.type = 'lowpass';
+    lp.frequency.value = 1500;
+    lp.connect(gain).connect(this.master);
+    for (const f of [400 * pitch, 505 * pitch]) {
+      const o = this.ctx.createOscillator();
+      o.type = 'sawtooth';
+      o.frequency.value = f;
+      o.connect(lp);
+      o.start(t);
+      o.stop(t + len + 0.08);
+    }
+  }
+
   /** Engine hum. rpm01: 0 = idle, 1 = full speed. Pass null when the player is not in a car. */
   setEngine(rpm01: number | null, load = 0): void {
     if (!this.ctx || !this.master) return;

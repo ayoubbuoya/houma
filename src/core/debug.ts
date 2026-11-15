@@ -11,12 +11,14 @@ export const DEBUG = {
   quality: (q.get('q') as Quality | null) ?? null,
   nopost: q.get('nopost') === '1',
   shadow: q.get('shadow'),
+  notraffic: q.get('notraffic') === '1',
 };
 
 /** Fixed camera points for repeatable screenshots: [eye], [target]. */
 export const DEBUG_CAMS: Record<string, { eye: [number, number, number]; at: [number, number, number] }> = {
   boulevard: { eye: [5, 3.2, -150], at: [-4, 3.5, -60] },
   boulevard2: { eye: [-22, 2.2, 40], at: [10, 6, 0] },
+  lights: { eye: [-15.6, 2.4, -92], at: [6, 3.6, -58] },
   clock: { eye: [-8, 5, 150], at: [0, 9, 220] },
   medina: { eye: [-217.7, 1.8, -152], at: [-217.5, 2.4, -100] },
   medina2: { eye: [-217.7, 1.7, -30], at: [-190, 2.2, -44.5] },

@@ -25,3 +25,8 @@ Choices made while building, with the reason. Newest at the bottom.
 15. **Braking uses a deceleration value** (`brakeForce` in m/s²) instead of a raw force, so heavy and light cars stop in a similar way.
 16. **Horn and engine sound came early** (spec puts sound in Level 6). They are tiny and make driving feel alive, so they are in Level 1.
 17. **Sidewalk graph skips the highway.** There are no crosswalks on the highway, so the few sidewalks south of it are not connected to the rest.
+18. **AI cars are not full physics cars.** They follow lane paths (`src/ai/traffic/lanes.ts`) and are moved as kinematic bodies.
+    This is cheap, stable for 25 cars, and they can never flip or leave the road. The player's car still collides with them.
+19. **One merged mesh per AI car** (colors per vertex) so each AI car is one draw call.
+20. **Anti-jam rule:** an AI car that is blocked for more than 22 seconds where the player cannot see it is removed. In the tests this almost never triggers.
+21. **Traffic light timing** is in `TRAFFIC.lights` in `src/data/config.ts` (boulevard gets the longer green).

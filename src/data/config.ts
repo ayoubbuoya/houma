@@ -125,3 +125,19 @@ export const PALETTE = {
   sand: 0xe6d3a3,
   stone: 0xcbb489,
 };
+
+/** AI traffic (Level 2). */
+export const TRAFFIC = {
+  count: { low: 14, medium: 20, high: 25 } as Record<Quality, number>,
+  spawnMin: 95, // meters from the player
+  spawnMax: 215,
+  despawn: 265,
+  /** share of each vehicle type in traffic */
+  mix: [['taxi', 0.3], ['hatch', 0.3], ['sedan', 0.22], ['louage', 0.09], ['pickup', 0.09]] as [string, number][],
+  accel: 2.4,
+  brake: 4.5,
+  hardBrake: 9,
+  minGap: 2.2,
+  honkAfter: 2, // seconds blocked before the driver honks
+  lights: { greenNS: 15, greenEW: 11, yellow: 3, allRed: 1.5 },
+};
