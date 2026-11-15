@@ -23,7 +23,7 @@ export const DEBUG_CAMS: Record<string, { eye: [number, number, number]; at: [nu
   medinagate: { eye: [-134, 2.2, -36], at: [-150, 3.4, -44.5] },
   medinatop: { eye: [-120, 60, 20], at: [-215, 0, -70] },
   houma: { eye: [176, 2.2, -128], at: [210, 2.6, -96] },
-  houma2: { eye: [213, 6, -40], at: [240, 2, 8] },
+  houma2: { eye: [210, 2.4, -60], at: [210.5, 3.2, 0] },
   corniche: { eye: [-70, 3.2, -346], at: [40, 2.5, -352] },
   beach: { eye: [60, 2.5, -372], at: [-40, 1, -360] },
   louage: { eye: [-150, 7, 92], at: [-215, 1, 150] },

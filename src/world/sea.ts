@@ -73,8 +73,8 @@ export class Sea {
           // soft foam bands that move toward the beach
           float fz = uShoreZ - vW.z;
           float band = sin(fz * 0.9 - uTime * 1.3 + noise(p * 0.35) * 5.0);
-          float foam = smoothstep(0.78, 1.0, band) * smoothstep(13.0, 1.0, fz) + smoothstep(1.6, 0.0, fz + noise(p * 0.8 + uTime * 0.3) * 1.2);
-          col = mix(col, vec3(0.92, 0.9, 0.86), clamp(foam, 0.0, 1.0) * 0.8);
+          float foam = smoothstep(0.9, 1.0, band) * smoothstep(9.0, 0.5, fz) * 0.7 + smoothstep(1.3, 0.0, fz + noise(p * 0.8 + uTime * 0.3) * 1.0);
+          col = mix(col, vec3(0.9, 0.88, 0.84), clamp(foam, 0.0, 1.0) * 0.75);
           gl_FragColor = vec4(col, 1.0);
           #include <fog_fragment>
         }`,

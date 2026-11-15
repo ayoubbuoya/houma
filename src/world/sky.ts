@@ -48,7 +48,7 @@ export class SkySystem {
     cam.near = 1;
     cam.far = 420;
     cam.updateProjectionMatrix();
-    (this.scene.fog as THREE.FogExp2).density = q === 'low' ? 0.0022 : q === 'medium' ? 0.0015 : 0.0012;
+    (this.scene.fog as THREE.FogExp2).density = q === 'low' ? 0.002 : q === 'medium' ? 0.0011 : 0.0009;
   }
 
   /** Set the time of day in hours (6 to 19 looks good; golden hour is around 17.5). */
@@ -72,8 +72,8 @@ export class SkySystem {
       const u = s.material.uniforms;
       u.turbidity.value = THREE.MathUtils.lerp(2.5, 4.5, low);
       u.rayleigh.value = THREE.MathUtils.lerp(1.2, 2.6, low);
-      u.mieCoefficient.value = 0.006;
-      u.mieDirectionalG.value = 0.82;
+      u.mieCoefficient.value = 0.0028;
+      u.mieDirectionalG.value = 0.86;
       u.sunPosition.value.copy(this.sunDir);
       if (u.cloudCoverage) {
         u.cloudCoverage.value = 0.26;

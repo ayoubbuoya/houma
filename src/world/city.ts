@@ -438,8 +438,30 @@ class CityBuilder {
         b.flat('decal', (yx0 + yx1) / 2, CURB + 0.02, (yz0 + yz1) / 2, yx1 - yx0 + 3, yz1 - yz0 + 3, style === 'downtown' ? 0x9a958a : 0xb8a680);
         const n = Math.floor(((yx1 - yx0) * (yz1 - yz0)) / 260) + 1;
         b.push(0, 0, 0, CURB);
+        const taken: [number, number, number][] = [];
+        if (yx1 - yx0 > 36 && yz1 - yz0 > 36) {
+          // inner buildings so the big blocks do not look empty from above
+          const big = style === 'downtown';
+          const cell = big ? 27 : 19;
+          for (let x = yx0 + 3; x + cell - 6 < yx1; x += cell) {
+            for (let z = yz0 + 3; z + cell - 6 < yz1; z += cell) {
+              if (rng.chance(big ? 0.3 : 0.38)) continue;
+              const w = big ? rng.range(14, 20) : rng.range(8, 12), d = big ? rng.range(12, 19) : rng.range(8, 11);
+              const cx = x + cell / 2 - 2, cz = z + cell / 2 - 2;
+              b.push(cx, cz, rng.pick([0, Math.PI / 2, Math.PI, -Math.PI / 2]));
+              house(k, w, d, {
+                floors: big ? rng.int(2, 4) : rng.int(1, 3), open: { f: true, b: true, l: true, r: true },
+                style: style === 'corniche' ? 'corniche' : 'houma', color: big ? rng.pick(PALETTE.colonial) : undefined,
+                unfinished: !big && style !== 'corniche' && rng.chance(0.25),
+              });
+              b.pop();
+              taken.push([cx, cz, Math.max(w, d) * 0.75]);
+            }
+          }
+        }
         for (let i = 0; i < n; i++) {
           const x = rng.range(yx0, yx1), z = rng.range(yz0, yz1);
+          if (taken.some((t) => Math.hypot(t[0] - x, t[1] - z) < t[2] + 2)) continue;
           const r = rng.next();
           if (r < 0.4) olive(k, x, 0, z, rng.range(0.8, 1.2));
           else if (r < 0.6) orangeTree(k, x, z);
@@ -686,8 +708,8 @@ class CityBuilder {
       for (let i = 0; i < n; i++) {
         const za = zs + ((zEnd - zs) * i) / n, zb = zs + ((zEnd - zs) * (i + 1)) / n;
         const ya = top - slope * (zs - za), yb = top - slope * (zs - zb);
-        const wet = (y: number) => THREE.MathUtils.smoothstep(SEA_LEVEL + 0.45, SEA_LEVEL - 0.1, y);
-        const col = mixHex(mixHex(PALETTE.sand, 0xd9c48f, rng.next()), 0x9c8760, wet((ya + yb) / 2));
+        const wet = (y: number) => 1 - THREE.MathUtils.smoothstep(y, SEA_LEVEL - 0.15, SEA_LEVEL + 0.35);
+        const col = mixHex(mixHex(PALETTE.sand, 0xdcc894, rng.next()), 0xa8926a, wet((ya + yb) / 2));
         b.quad('matte', [x, ya, za], [x + 40, ya, za], [x + 40, yb, zb], [x, yb, zb], col);
       }
     }

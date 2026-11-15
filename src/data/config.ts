@@ -104,9 +104,9 @@ export const SPEED_LIMITS = { boulevard: 50, main: 50, minor: 30, corniche: 60, 
 
 export type Quality = 'low' | 'medium' | 'high';
 export const QUALITY: Record<Quality, { shadowMap: number; shadowRange: number; pixelRatio: number; bloom: boolean; far: number }> = {
-  low: { shadowMap: 1024, shadowRange: 60, pixelRatio: 1, bloom: false, far: 450 },
-  medium: { shadowMap: 2048, shadowRange: 85, pixelRatio: 1, bloom: true, far: 650 },
-  high: { shadowMap: 4096, shadowRange: 110, pixelRatio: 1.5, bloom: true, far: 900 },
+  low: { shadowMap: 1024, shadowRange: 60, pixelRatio: 1, bloom: false, far: 600 },
+  medium: { shadowMap: 2048, shadowRange: 85, pixelRatio: 1, bloom: true, far: 1100 },
+  high: { shadowMap: 4096, shadowRange: 110, pixelRatio: 1.5, bloom: true, far: 1400 },
 };
 
 /** Wall palette: mostly white, some cream and light ochre. */

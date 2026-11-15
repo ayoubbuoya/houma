@@ -26,6 +26,10 @@
       #title .play { margin-top: 44px; font-size: 20px; font-weight: 700; padding: 13px 44px; border-radius: 999px; background: #1f6fb5; border: 2px solid rgba(255,255,255,.85); box-shadow: 0 8px 30px rgba(0,0,0,.4); }
       #title .keys { margin-top: 30px; font-size: 14px; opacity: .85; line-height: 1.9; max-width: 720px; }
       #title .keys b { background: rgba(255,255,255,.92); color: #111; border-radius: 4px; padding: 1px 7px; margin: 0 3px 0 10px; }
+      #pause { position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(8,12,20,.6); backdrop-filter: blur(6px); cursor: pointer; transition: opacity .25s; }
+      #pause h2 { font-size: 54px; margin: 0; letter-spacing: .08em; }
+      #pause .play { margin-top: 26px; font-size: 20px; font-weight: 700; padding: 12px 42px; border-radius: 999px; background: #1f6fb5; border: 2px solid rgba(255,255,255,.85); }
+      #pause .keys { margin-top: 18px; opacity: .8; }
       #loading { position: fixed; inset: 0; display: flex; align-items: center; justify-content: center; flex-direction: column; background: #0d0f14; font-size: 18px; letter-spacing: .1em; transition: opacity .5s; }
       #loading .ar { font-size: 72px; color: #ffd98a; font-weight: 700; }
       .hidden { opacity: 0 !important; pointer-events: none !important; }
@@ -48,6 +52,7 @@
         <b>F</b> enter / exit car <b>H</b> horn <b>R</b> reset car <b>F3</b> FPS <b>Esc</b> pause
       </div>
     </div>
+    <div id="pause" class="hidden"><h2>Paused</h2><div class="play">Resume</div><div class="keys">Click to continue</div></div>
     <div id="loading"><div class="ar">حومة</div><div id="loadtext">Loading the city…</div></div>
     <script type="module" src="/src/main.ts"></script>
   </body>

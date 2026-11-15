@@ -4,6 +4,7 @@ import '@fontsource/cairo/latin-400.css';
 import '@fontsource/cairo/arabic-400.css';
 import RAPIER_NS from '@dimforge/rapier3d-compat';
 import * as THREE from 'three';
+import { GameAudio } from './core/audio';
 import { DEBUG, DEBUG_CAMS } from './core/debug';
 import { Input } from './core/input';
 import { Gfx } from './core/renderer';
@@ -32,6 +33,8 @@ class Game {
   player!: Player;
   cam!: FollowCamera;
   hud = new Hud();
+  audio = new GameAudio();
+  paused = false;
   vehicles: Vehicle[] = [];
   current: Vehicle | null = null;
   state: 'title' | 'play' = 'title';
@@ -88,6 +91,9 @@ class Game {
     });
     const title = $('title');
     const start = () => {
+      this.audio.unlock();
+      this.paused = false;
+      $('pause').classList.add('hidden');
       if (this.state === 'title') {
         this.state = 'play';
         title.classList.add('hidden');
@@ -97,6 +103,16 @@ class Game {
     };
     title.addEventListener('click', start);
     canvas.addEventListener('click', start);
+    $('pause').addEventListener('click', start);
+    // Esc releases the mouse: show the pause screen
+    document.addEventListener('pointerlockchange', () => {
+      if (!document.pointerLockElement && this.state === 'play' && !DEBUG.on) {
+        this.paused = true;
+        $('pause').classList.remove('hidden');
+        this.audio.setHorn(false);
+        this.audio.setEngine(null);
+      }
+    });
 
     if (DEBUG.on) {
       this.state = 'play';
@@ -195,6 +211,7 @@ class Game {
     this.time += dt;
     this.acc += dt;
     let n = 0;
+    if (this.paused) this.acc = 0;
     while (this.acc >= PHYSICS.step && n < PHYSICS.maxSubSteps) {
       this.step(PHYSICS.step);
       this.acc -= PHYSICS.step;
@@ -216,6 +233,9 @@ class Game {
         }
       }
       if (input.hit('KeyR') && this.current) this.current.reset();
+      const v = this.current;
+      this.audio.setHorn(!!v && input.down('KeyH') && !this.paused, v?.spec.kind === 'louage' || v?.spec.kind === 'pickup' ? 0.8 : 1);
+      this.audio.setEngine(v && !this.paused ? Math.min(1, v.kmh / v.spec.maxSpeed) : null, v ? Math.abs(input.axis('KeyS', 'KeyW')) : 0);
     }
     player.frame(alpha, dt);
     for (const v of this.vehicles) v.frame(alpha);

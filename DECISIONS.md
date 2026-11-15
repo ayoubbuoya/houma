@@ -23,3 +23,5 @@ Choices made while building, with the reason. Newest at the bottom.
 13. **Tunisian flag** is drawn on flag poles (police station, louage station, highway roundabout). It is a national symbol, not a brand logo.
 14. **Louage stripe is red** by default (`LOUAGE_STRIPE_COLOR` in `src/data/config.ts`). Owner to confirm.
 15. **Braking uses a deceleration value** (`brakeForce` in m/s²) instead of a raw force, so heavy and light cars stop in a similar way.
+16. **Horn and engine sound came early** (spec puts sound in Level 6). They are tiny and make driving feel alive, so they are in Level 1.
+17. **Sidewalk graph skips the highway.** There are no crosswalks on the highway, so the few sidewalks south of it are not connected to the rest.

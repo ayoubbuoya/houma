@@ -1,6 +1,6 @@
 // Visual tests: build must exist (npm run build). Starts `vite preview`, opens the game in headless
 // Chromium, takes screenshots from fixed cameras and runs a few sanity checks.
-// Usage: node tests/visual/run.mjs [cam1 cam2 ...] [--time=17.6] [--checks] [--size=1280x720]
+// Usage: node tests/visual/run.mjs [cam1 cam2 ...] [--time=17] [--checks] [--size=1280x720] [--out=screenshots]
 import { spawn } from 'node:child_process';
 import { existsSync, mkdirSync } from 'node:fs';
 import { createRequire } from 'node:module';
@@ -10,13 +10,12 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
-const out = path.join(root, 'tests/visual/out');
-mkdirSync(out, { recursive: true });
-
 const args = process.argv.slice(2);
 const opt = (name, def) => (args.find((a) => a.startsWith(`--${name}=`)) ?? `--${name}=${def}`).split('=')[1];
+const out = path.join(root, opt('out', 'tests/visual/out'));
+mkdirSync(out, { recursive: true });
 const cams = args.filter((a) => !a.startsWith('--'));
-const ALL = ['boulevard', 'clock', 'medina', 'medinagate', 'houma', 'corniche', 'beach', 'louage', 'highway', 'aerial'];
+const ALL = ['boulevard', 'clock', 'medina', 'medinagate', 'houma2', 'corniche', 'beach', 'louage', 'highway', 'aerial2'];
 const list = cams.length ? cams : ALL;
 const time = opt('time', '17');
 const [W, H] = opt('size', '1280x720').split('x').map(Number);
